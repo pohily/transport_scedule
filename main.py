@@ -1,8 +1,9 @@
-from urllib.request import urlopen
 import re
+from urllib.request import urlopen
 
 
 class Rooter:
+
     def __init__(self):
         self.URLS = {
             'bus_babka': "https://yandex.ru/maps/213/moscow/stops/stop__9641561/?ll=37.652162%2C55.871319&z=17.96",
@@ -16,6 +17,17 @@ class Rooter:
             'otradnoe': 4,
             'avt_649': 3
         }
+
+    def print_schedule(self, data):
+        for line in data:
+            if self.on_time(line):
+                print(f'Следующий {line[1]} {line[2]} будет через {line[0]}')
+
+    def on_time(self, data):
+        if int(data[0].split(' ')[0]) - self.TIME_DELTAS[data[3]] >= 0:
+            return True
+        else:
+            return False
 
     def schedule(self, key, good=False):
         url = self.URLS[key]
@@ -37,45 +49,29 @@ class Rooter:
                 result.append((time[0], transp_type[0], transp_num[0], key))
         return result
 
-    def bus_babka(self):
-        good_to_babka = ['124', '174', '238', '309', '880', '928', 'С15']
-        key = "bus_babka"
-        return self.schedule(key, good_to_babka)
-
-    def tram(self):
-        key = 'tram'
-        return self.schedule(key)
-
-    def otradnoe(self):
-        good_to_otradnoe = ['605', '880']
-        key = "otradnoe"
-        return self.schedule(key, good_to_otradnoe)
-
-    def avt_649(self):
-        key = 'avt_649'
-        return self.schedule(key)
-
     def metro(self):
         result = self.avt_649()
         result += self.tram()
         result += self.bus_babka()
         return sorted(result, key=lambda x: int(x[0].split(' ')[0]))
 
+    def bus_babka(self):
+        good_to_babka = ['124', '174', '238', '309', '880', '928', 'С15']
+        return self.schedule(key="bus_babka", good=good_to_babka)
+
+    def tram(self):
+        return self.schedule(key='tram')
+
+    def avt_649(self):
+        return self.schedule(key='avt_649')
+
+    def otradnoe(self):
+        good_to_otradnoe = ['605', '880']
+        return self.schedule(key="otradnoe", good=good_to_otradnoe)
+
     def altufan(self):
         good = ['928']
-        key = "otradnoe"
-        return self.schedule(key, good)
-
-    def print_schedule(self, data):
-        for line in data:
-            if self.on_time(line):
-                print(f'Следующий {line[1]} {line[2]} будет через {line[0]}')
-
-    def on_time(self, data):
-        if int(data[0].split(' ')[0]) - self.TIME_DELTAS[data[3]] >= 0:
-            return True
-        else:
-            return False
+        return self.schedule(key="otradnoe", good=good)
 
 
 if __name__ == '__main__':
