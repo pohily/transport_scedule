@@ -21,10 +21,18 @@ class Rooter:
     def print_schedule(self, data):
         for line in data:
             if self.on_time(line):
-                print(f'Следующий {line[1]} {line[2]} будет через {line[0]}')
+                if {line[2]} == '17':
+                    time = 4
+                elif {line[2]} == '649':
+                    time = 7
+                elif {line[2]} in ['605', '880']:
+                    time = 18
+                else:
+                    time = 4
+                print(f'{line[2]} будет через {line[0]}, до метро - {line[0] + time}')
 
     def on_time(self, data):
-        if int(data[0].split(' ')[0]) - self.TIME_DELTAS[data[3]] >= 0:
+        if data[0] - self.TIME_DELTAS[data[3]] >= 0:
             return True
         else:
             return False
@@ -46,14 +54,14 @@ class Rooter:
                 if transp_num and transp_num[0] not in good:
                     continue
             if time and transp_num and transp_type:
-                result.append((time[0], transp_type[0], transp_num[0], key))
+                result.append((int(time[0].split(' ')[0]), transp_type[0], transp_num[0], key))
         return result
 
     def metro(self):
         result = self.avt_649()
         result += self.tram()
         result += self.bus_babka()
-        return sorted(result, key=lambda x: int(x[0].split(' ')[0]))
+        return sorted(result)
 
     def bus_babka(self):
         good_to_babka = ['124', '174', '238', '309', '880', '928', 'С15']
