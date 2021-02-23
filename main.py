@@ -17,6 +17,7 @@ class Rooter:
             'otradnoe': 4,
             'avt_649': 3
         }
+        self.HOME = False
 
     def print_schedule(self, data):
         for line in data:
@@ -32,7 +33,11 @@ class Rooter:
                 print(f'{line[2]} будет через {line[0]}, до метро - {line[0] + time}')
 
     def on_time(self, data):
-        if data[0] - self.TIME_DELTAS[data[3]] >= 0:
+        if self.HOME:
+            delta = self.TIME_DELTAS[data[3]]
+        else:
+            delta = 0
+        if data[0] - delta >= 0:
             return True
         else:
             return False
@@ -54,6 +59,7 @@ class Rooter:
                 if transp_num and transp_num[0] not in good:
                     continue
             if time and transp_num and transp_type:
+                # 0: через сколько будет, 1: тип транспорта, 2: номер маршрута, 3: направление движения
                 result.append((int(time[0].split(' ')[0]), transp_type[0], transp_num[0], key))
         return result
 
@@ -84,6 +90,10 @@ class Rooter:
 
 if __name__ == '__main__':
     rooter = Rooter()
+    if rooter.HOME:
+        print('До метро пешком 13 минут')
+    else:
+        print('До метро пешком 9 минут')
     data = rooter.metro()
     rooter.print_schedule(data)
 
